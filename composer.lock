@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "416f888efc9cc6e5fd32b044a2812a54",
+    "content-hash": "914ed0caa5ad6488f79429a82cf5f931",
     "packages": [
         {
             "name": "brick/math",
@@ -5707,6 +5707,61 @@
                 }
             ],
             "time": "2025-06-27T19:55:54+00:00"
+        },
+        {
+            "name": "thecoder/laravel-monolog-telegram",
+            "version": "v2.5.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mbpcoder/laravel-monolog-telegram.git",
+                "reference": "b676f17f4b3e7bdf60c19c8ea66f8d134394a349"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mbpcoder/laravel-monolog-telegram/zipball/b676f17f4b3e7bdf60c19c8ea66f8d134394a349",
+                "reference": "b676f17f4b3e7bdf60c19c8ea66f8d134394a349",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-mbstring": "*",
+                "monolog/monolog": "^1.0|^2.0|^3.0",
+                "php": "^8.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "TheCoder\\MonologTelegram\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mahdi Bagheri",
+                    "email": "thecoder.ir@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Telegram Handler for Monolog",
+            "homepage": "https://github.com/mbpcoder/monolog-telegram",
+            "keywords": [
+                "bots",
+                "channels",
+                "laravel",
+                "log",
+                "logging",
+                "monolog",
+                "monolog-telegram",
+                "telegram"
+            ],
+            "support": {
+                "issues": "https://github.com/mbpcoder/laravel-monolog-telegram/issues",
+                "source": "https://github.com/mbpcoder/laravel-monolog-telegram/tree/v2.5.2"
+            },
+            "time": "2025-06-15T09:14:22+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",

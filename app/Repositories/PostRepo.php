@@ -15,23 +15,18 @@ class PostRepo
     public function getAll()
     {
         $posts = DB::table('posts')->whereNotNull('deleted_at')->get();
-        // $posts=Post::all();
-
-        if (!empty($posts)) {
-            return Response::json(HttpStatusCodes::OK->message(), HttpStatusCodes::OK->value, ['data' => $posts]);
-        } else {
-            return Response::json(HttpStatusCodes::NOT_FOUND->message(), HttpStatusCodes::NOT_FOUND->value);
-        }
+        return $posts;
     }
 
-    public function oneById(int $id)
+    public function getById(int $id)
     {
         $postDetail = Post::find($id);
-        if (!empty($postDetail)) {
-            return Response::json(HttpStatusCodes::OK->message(), HttpStatusCodes::OK->value, ['data' => $postDetail]);
-        } else {
-            return Response::json(HttpStatusCodes::NOT_FOUND->message(), HttpStatusCodes::NOT_FOUND->value);
-        }
+        return $postDetail;
+//        if (!empty($postDetail)) {
+//            return Response::json(HttpStatusCodes::OK->message(), HttpStatusCodes::OK->value, ['data' => $postDetail]);
+//        } else {
+//            return Response::json(HttpStatusCodes::NOT_FOUND->message(), HttpStatusCodes::NOT_FOUND->value);
+//        }
     }
 
     public function create(Request $request)
@@ -50,7 +45,7 @@ class PostRepo
 
     }
 
-    public function update(Request $request, int $id)
+    public function update($request, int $id)
     {
         $post = Post::find($id);
         Gate::authorize('modify', $post);
@@ -66,14 +61,14 @@ class PostRepo
         // $post_detail=Post::find($id);
         $postUpdate = Post::find($post->id);
         $postUpdate->update($request->all());
-
+        return $postUpdate;
         //   $post_update=Post::where('id', $post->id)->update($post_data);
 
-        if ($postUpdate) {
-            return Response::json(HttpStatusCodes::OK->message(), HttpStatusCodes::OK->value);
-        } else {
-            return Response::json(HttpStatusCodes::NOT_FOUND->message(), HttpStatusCodes::NOT_FOUND->value);
-        }
+//        if ($postUpdate) {
+//            return Response::json(HttpStatusCodes::OK->message(), HttpStatusCodes::OK->value);
+//        } else {
+//            return Response::json(HttpStatusCodes::NOT_FOUND->message(), HttpStatusCodes::NOT_FOUND->value);
+//        }
     }
 
     public function delete(int $id)
@@ -85,10 +80,7 @@ class PostRepo
         // $post_delete=DB::table('posts')->where('id',$id)->delete($id);
 
         $postDelete = Post::where('id', $post->id)->delete();
-        if ($postDelete) {
-            return Response::json(HttpStatusCodes::OK->message(), HttpStatusCodes::OK->value);
-        } else {
-            return Response::json(HttpStatusCodes::NOT_FOUND->message(), HttpStatusCodes::NOT_FOUND->value);
-        }
+        return $postDelete;
+
     }
 }
