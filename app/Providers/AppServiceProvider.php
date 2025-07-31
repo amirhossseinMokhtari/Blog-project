@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Repositories\PostRepo;
+use App\Repositories\PostRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,6 +20,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->app->bind(PostRepo::class);
+        $this->app->bind(PostRepository::class);
     }
 }

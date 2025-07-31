@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('title',length: 255);
-            $table->Text('content');
+            $table->Text('body');
             $table->integer('study_time_in_min');
             $table->boolean('is_draft')->default(0);
             $table->foreignId('deleted_by')->nullable();

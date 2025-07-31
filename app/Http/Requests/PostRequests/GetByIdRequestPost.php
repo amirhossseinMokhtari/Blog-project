@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\PostRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateRequestPost extends FormRequest
+class GetByIdRequestPost extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,9 +22,7 @@ class UpdateRequestPost extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'string|max:255|min:5',
-            'content' => 'string|max:255000|min:5',
-            'study_time_in_min' => 'integer|min:1|max:300'
+//            'id' => 'integer|min:1|max:300'
         ];
     }
 }

@@ -2,118 +2,64 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
+use App\Enums\HttpStatusCodes;
+use App\Http\Requests\UserRequests\LoginRequestUser;
+use App\Http\Requests\UserRequests\RegisterRequestUser;
+use App\Http\Resources\UserResource;
+use App\Repositories\UserRepository;
 use App\Models\User;
 use Illuminate\Http\Request;
-
-//use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 
-// use  Illuminate\Contracts\Auth\Authenticatable;
-
-//use function Laravel\Prompts\error;
-
 class AuthController extends Controller
 {
-    public function register()
+    public UserRepository $userRepositories;
+
+    public function __construct(UserRepository $userRepositories)
     {
-        $userData = array();
-        $userData['username'] = "";
-        $userData['email'] = "";
-        $userData['first_name'] = "";
-        $userData['last_name'] = "";
-        $userData['gender'] = " ['male', 'female']";
-        $userData['phone'] = "";
-        $userData['password'] = "";
-        return $userData;
+        $this->userRepositories = $userRepositories;
     }
 
-
-    public function registerPost(Request $request)
+    public function register(RegisterRequestUser $request)
     {
+        $request->validated();
+        $user = $this->userRepositories->register($request);
+        $userResource = new UserResource($user);
 
-        $request->validate([
-            'username' => 'required|unique:users',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:7'
-        ]);
-
-        $userData = array();
-        $userData['username'] = $request->username;
-        $userData['email'] = $request->email;
-        $userData['first_name'] = $request->first_name;
-        $userData['last_name'] = $request->last_name;
-        $userData['gender'] = $request->gender;
-        $userData['phone'] = $request->phone;
-        $userData['password'] = Hash::make($request->password);
-        $userData['created_at'] = Carbon::now();
-        // $new_post=DB::table('posts')->insert($post_data);
-        $newUser = User::create($userData);
-        $token = $newUser->createToken($request->username);
-        return [
-            'user' => $newUser,
-            'token' => $token->plainTextToken
-        ];
-
-        // if ($new_user) {
-        // return Response::json(['massage'=> "Registration successfully"],201) ;
-        // // return redirect()-> route('login');
-        // }
-        // else{
-        //     return Response::json(['massage'=> 'Non-Authoritative information','massage1'=> @error('username')],203) ;
-        // }
-    }
-
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email|exists:users',
-            'password' => 'required|min:7'
-        ]);
-
-        $user = User::where('email', $request->email)->first();
-        if (!$user) {
-            return Response::json(['massage' => 'User with this email was not found'], 203);
-        }
-        //   dd($request->password, $user->password);
-        if (Hash::check($request->password, $user->password)) {
-            // return Response::json(['massage'=> 'login successfully'],200) ;
-            $token = $user->createToken($user->username);
-            $aaa = [
-                'user' => $user,
-                'token' => $token->plainTextToken
-            ];
-
-            return Response::json(['massage' => 'User with this email was not found'], 203);
-
-            // $token = $user->createToken($request->device_name ?? 'default');
-            //    return Response::json(["token"=>$token->plain_text_token]);
-            //    return $token;
-            //    Auth::login($user);
+        if ($userResource) {
+            return response::json(['status' => ['message' => HttpStatusCodes::CREATED->message(),
+                'code' => HttpStatusCodes::CREATED->value], 'data' => $userResource]);
         } else {
-            return Response::json(['massage' => 'User password entered is wrong'], 404);
+            return Response::json(['status' => ['message' => HttpStatusCodes::NON_AUTHORITATIVE->message(), 'code' => HttpStatusCodes::NON_AUTHORITATIVE->value]]);
         }
-        // $login_data=Auth::Post([
-        //     "email"=>$request,
-        //     "password"=>Hash::make($request->password)
-        // ]);
+    }
 
-// dd($login_data);
-
-        //   $post=Post::create($post_data);
-
-
+    public function login(LoginRequestUser $request)
+    {
+        $request->validated();
+        $user = $this->userRepositories->login($request);
+        if ($user['status'] === HttpStatusCodes::OK) {
+            $userResource = new UserResource($user);
+            return response::json(['status' => ['message' => HttpStatusCodes::OK->message(),
+                'code' => HttpStatusCodes::OK->value], 'data' => $userResource]);
+        } elseif ($user['status'] === HttpStatusCodes::UNAUTHORIZED) {
+            return Response::json(['status' => ['message' => HttpStatusCodes::UNAUTHORIZED->message(), 'code' => HttpStatusCodes::UNAUTHORIZED->value]]);
+        } else {
+            return Response::json(['status' => ['message' => HttpStatusCodes::NOT_FOUND->message(), 'code' => HttpStatusCodes::NOT_FOUND->value]]);
+        }
     }
 
 
     public function logout(Request $request)
     {
-        $request->user()->tokens()->delete();
-        return [
-            'massage' => 'you are logget out'
-        ];
-
+        $user = $this->userRepositories->logout($request);
+        if ($user['status'] === HttpStatusCodes::OK) {
+            return response::json(['status' => ['message' => HttpStatusCodes::OK->message(),
+                'code' => HttpStatusCodes::OK->value]]);
+        } else {
+            return Response::json(['status' => ['message' => HttpStatusCodes::NOT_FOUND->message(), 'code' => HttpStatusCodes::NOT_FOUND->value]]);
+        }
     }
 
 }

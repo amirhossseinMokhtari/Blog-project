@@ -17,9 +17,9 @@ class Post extends Model
     *
     *  \Illuminate\Database\Eloquent\Relations\BelongsTo
     */
-   public function user() 
+   public function user()
    {
        return $this->belongsTo(User::class);
-   } 
+   }
 // 'foreign_key', 'other_key'
 }

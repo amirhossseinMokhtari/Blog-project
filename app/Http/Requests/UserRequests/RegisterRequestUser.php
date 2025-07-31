@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\UserRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class GetByIdRequestPost extends FormRequest
+class RegisterRequestUser extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,9 @@ class GetByIdRequestPost extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => 'integer|min:1|max:300|exists:posts,id',
+            'username' => 'required|unique:users',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:7'
         ];
     }
 }

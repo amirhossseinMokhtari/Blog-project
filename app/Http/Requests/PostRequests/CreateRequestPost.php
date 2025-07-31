@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\PostRequests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class DeleteRequestPost extends FormRequest
+class CreateRequestPost extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,7 +22,9 @@ class DeleteRequestPost extends FormRequest
     public function rules(): array
     {
         return [
-            'id' => 'integer|min:1|max:300|exists:posts,id',
-        ];
+            'title' => 'required|string|max:255|min:5',
+            'body' => 'required|string|max:255000|min:5',
+            'study_time_in_min' => 'required|integer|min:1|max:300'
+            ];
     }
 }

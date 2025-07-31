@@ -2,23 +2,24 @@
 
 namespace App\Repositories;
 
-use App\Enums\HttpStatusCodes;
 use App\Models\Post;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Response;
 
-class PostRepo
+class PostRepository
 {
+    /**
+     * @return Collection
+     */
     public function getAll()
     {
-        $posts = DB::table('posts')->whereNotNull('deleted_at')->get();
-        return $posts;
+        return DB::table('posts')->whereNotNull('deleted_at')->get();
     }
 
-    public function getById(int $id)
+    public function getById($id)
     {
         $postDetail = Post::find($id);
         return $postDetail;
@@ -34,30 +35,20 @@ class PostRepo
         $postData = array();
         $postData['user_id'] = $request->user_id;
         $postData['title'] = $request->title;
-        $postData['content'] = $request->content;
+        $postData['body'] =$request->body;
         $postData['study_time_in_min'] = $request->study_time_in_min;
         $postData['created_at'] = Carbon::now();
 
-        // $new_post=DB::table('posts')->insert($post_data);
-
-        $newPost = $request->user()->posts()->create($postData);
+//        $new_post=DB::table('posts')->insert($post_data);
+        $newPost=$request->user()->posts()->create($postData);
         return $newPost;
-
     }
 
     public function update($request, int $id)
     {
         $post = Post::find($id);
         Gate::authorize('modify', $post);
-        //   $post_data=array();
-        //   $post_data['user_id']=$request->user_id;
-        //   $post_data['title']=$request->title;
-        //   $post_data['body']=$request->content;
-        //   $post_data['study_time_in_min']=$request->study_time_in_min;
-        //   $post_data['updated_at']=Carbon::now();
-
         // $post_update=DB::table('posts')->where('id',$id)->update($request->all());
-
         // $post_detail=Post::find($id);
         $postUpdate = Post::find($post->id);
         $postUpdate->update($request->all());
@@ -71,7 +62,7 @@ class PostRepo
 //        }
     }
 
-    public function delete(int $id)
+    public function delete($id)
     {
         $post = Post::find($id);
         Gate::authorize('modify', $post);

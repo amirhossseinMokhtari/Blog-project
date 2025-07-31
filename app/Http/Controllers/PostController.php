@@ -3,101 +3,97 @@
 namespace App\Http\Controllers;
 
 use App\Enums\HttpStatusCodes;
-use App\Http\Requests\CreateRequestPost;
-use App\Http\Requests\DeleteRequestPost;
-use App\Http\Requests\getByIdRequestPost;
-use App\Http\Requests\UpdateRequestPost;
+use App\Http\Requests\PostRequests\CreateRequestPost;
+use App\Http\Requests\PostRequests\UpdateRequestPost;
 use App\Http\Resources\PostResource;
-use App\Repositories\PostRepo;
-use Carbon\Carbon;
-use App\Models\Post;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Response;
+use App\Repositories\PostRepository;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Response;
 
 class PostController extends Controller implements HasMiddleware
 {
-    public static function middleware()
+    /**
+     * @return Middleware[]
+     */
+    public static function middleware(): array
     {
         return [
             new Middleware('auth:sanctum', except: ['index', 'show'])
         ];
     }
 
-    public $postRepo;
-
-    public function __construct(PostRepo $postRepo)
+    public PostRepository $postRepo;
+    public function __construct(PostRepository $postRepo)
     {
         $this->postRepo = $postRepo;
     }
 
 
-    public function getAll(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function getAll(): \Illuminate\Http\JsonResponse
     {
-        $posts= $this->postRepo->getAll();
-         return PostResource::collection($posts);
-    }
-
-
-    public function getById(GetByIdRequestPost $id): PostResource
-    {
-        $id = $id->validated();
-
-        try {
-        $postDetail= $this->postRepo->getById($id);
-        return new PostResource($postDetail);
-        }catch (\Exception $exception){
-            return Response::json([HttpStatusCodes::NOT_FOUND->message(), HttpStatusCodes::NOT_FOUND->value]);
+        $posts = $this->postRepo->getAll();
+        if ($posts) {
+            $postResource =PostResource::collection($posts);
+            return response::json(['status' => ['message' => HttpStatusCodes::OK->message(), 'code' => HttpStatusCodes::OK->value], 'data' => $postResource]);
+        } else {
+            return Response::json(['status' => ['message' => HttpStatusCodes::NOT_FOUND->message(), 'code' => HttpStatusCodes::NOT_FOUND->value]]);
         }
     }
 
 
-    public function create(CreateRequestPost $request): PostResource
+    public function getById(int $id)
     {
-        $postData = $request->validated();
-        try {
-            $newPost = $this->postRepo->create($request);
-            return new PostResource($newPost);
-        }catch (\Exception $exception){
-            return Response::json([HttpStatusCodes::NOT_FOUND->message(), HttpStatusCodes::NOT_FOUND->value]);
+        $postDetail = $this->postRepo->getById($id);
+        if ($postDetail) {
+            $postResource = new PostResource($postDetail);
+            return response::json(['status' => ['message' => HttpStatusCodes::OK->message(),
+                'code' => HttpStatusCodes::OK->value], 'data' => $postResource]);
+        } else {
+            return Response::json(['status' => ['message' => HttpStatusCodes::NOT_FOUND->message(), 'code' => HttpStatusCodes::NOT_FOUND->value]]);
         }
 
-
-
-
-//        return $this->postResource->create($newPost);
-//        return PostResource::collection($newPost);
-//        return response()->json($newPost);
-//        return PostResource::createResponse($newPost);
-//        return PostResource::createResponse(new PostResource($newPost));
     }
 
 
-    public function update(UpdateRequestPost $request, int $id): PostResource
+    public function create(CreateRequestPost $request)
     {
-        $postData = $request->validated();
-        try {
-        $postUpdate= $this->postRepo->update($request, $id);
-        return new PostResource($postUpdate);
-        }catch (\Exception $exception){
-            return Response::json([HttpStatusCodes::NOT_FOUND->message(), HttpStatusCodes::NOT_FOUND->value]);
+        $request->validated();
+        $newPost = $this->postRepo->create($request);
+        if ($newPost) {
+            $postResource = new PostResource($newPost);
+            return response::json(['status' => ['message' => HttpStatusCodes::CREATED->message(),
+                'code' => HttpStatusCodes::CREATED->value], 'data' => $postResource]);
+        } else {
+            return Response::json(['status' => ['message' => HttpStatusCodes::NOT_FOUND->message(), 'code' => HttpStatusCodes::NOT_FOUND->value]]);
+        }
+    }
+
+
+    public function update(UpdateRequestPost $request, int $id): \Illuminate\Http\JsonResponse
+    {
+        $request->validated();
+        $postUpdate = $this->postRepo->update($request, $id);
+        if ($postUpdate) {
+            $postResource = new PostResource($postUpdate);
+            return response::json(['status' => ['message' => HttpStatusCodes::OK->message(),
+                'code' => HttpStatusCodes::OK->value], 'data' => $postResource]);
+        } else {
+            return Response::json(['status' => ['message' => HttpStatusCodes::NOT_FOUND->message(), 'code' => HttpStatusCodes::NOT_FOUND->value]]);
         }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function delete(DeleteRequestPost $id): \Illuminate\Http\JsonResponse
+    public function delete(int $id): \Illuminate\Http\JsonResponse
     {
-        $id = $id->validated();
-        $postDelete= $this->postRepo->delete($id);
+        $postDelete = $this->postRepo->delete($id);
         if ($postDelete) {
-            return Response::json(HttpStatusCodes::OK->message(), HttpStatusCodes::OK->value);
+            return response::json(['status' => ['message' => HttpStatusCodes::OK->message(),
+            'code' => HttpStatusCodes::OK->value]]);
         } else {
-            return Response::json(HttpStatusCodes::NOT_FOUND->message(), HttpStatusCodes::NOT_FOUND->value);
+            return Response::json(['status' => ['message' => HttpStatusCodes::NOT_FOUND->message(), 'code' => HttpStatusCodes::NOT_FOUND->value]]);
         }
     }
 }
