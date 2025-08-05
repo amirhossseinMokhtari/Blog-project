@@ -16,6 +16,5 @@ class PostResource extends JsonResource
                 'body' => $this->body,
                 'study_time_in_min' => $this->study_time_in_min
         ];
-//
     }
 }

@@ -4,6 +4,12 @@ use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
 use Monolog\Processor\PsrLogMessageProcessor;
+//use TheCoder\MonologTelegram\Attributes\EmergencyAttribute;
+//use TheCoder\MonologTelegram\Attributes\CriticalAttribute;
+//use TheCoder\MonologTelegram\Attributes\ImportantAttribute;
+//use TheCoder\MonologTelegram\Attributes\DebugAttribute;
+//use TheCoder\MonologTelegram\Attributes\InformationAttribute;
+//use TheCoder\MonologTelegram\Attributes\LowPriorityAttribute;
 
 return [
 
@@ -58,7 +64,10 @@ return [
             'ignore_exceptions' => false,
         ],
 
-        'single' => [
+
+
+
+    'single' => [
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
