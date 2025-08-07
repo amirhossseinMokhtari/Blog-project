@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Enums\HttpStatusCodes;
 use App\Http\Requests\PostRequests\CreateRequestPost;
+use App\Http\Requests\PostRequests\GetAllRequestPost;
 use App\Http\Requests\PostRequests\UpdateRequestPost;
 use App\Http\Resources\PostResource;
 use App\Listeners\CreatePost;
 use App\Repositories\PostRepository;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 
@@ -32,9 +34,11 @@ class PostController extends Controller implements HasMiddleware
     }
 
 
-    public function getAll(): \Illuminate\Http\JsonResponse
+    public function getAll(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
     {
-        $posts = $this->postRepo->getAll();
+        $page = $request->query('page', 1);
+        $posts = $this->postRepo->getAll($page);
+
         if ($posts) {
             $postResource =PostResource::collection($posts);
             return response::json(['status' => ['message' => HttpStatusCodes::OK->message(), 'code' => HttpStatusCodes::OK->value], 'data' => $postResource]);
@@ -62,7 +66,7 @@ class PostController extends Controller implements HasMiddleware
     {
         $request->validated();
         $newPost = $this->postRepo->create($request);
-        event(new CreatePost($newPost));
+//        event(new CreatePost($newPost));
         if ($newPost) {
             $postResource = new PostResource($newPost);
             return response::json(['status' => ['message' => HttpStatusCodes::CREATED->message(),

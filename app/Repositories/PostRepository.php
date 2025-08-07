@@ -6,38 +6,63 @@ use App\Models\Post;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Log;
 
 class PostRepository
 {
     /**
      * @return Collection
      */
-    public function getAll()
+    public function getAll($page)
     {
-        $cachedPost=Redis::get("postList");
-        if ($cachedPost) {
-            $postList=json_decode($cachedPost);
-        }else {
-            $postList = DB::table('posts')->whereNull('deleted_at')->get();;
-            Redis::setex("postList", 600, json_encode($postList));
+        if(Cache::tags(['posts','list'])->get('List-'.$page) == null){
+            $listPost =  Cache::tags(['posts','list'])->rememberForever('List-'.$page, function(){
+                return DB::table('posts')->select('id', 'title', 'user_id', 'study_time_in_min', 'created_at')->whereNull('deleted_at')->orderBy('id', 'desc')->cursorPaginate(15);
+            });
+            return $listPost;
+        } else {
+
+            $listPost = Cache::tags(['posts','list'])->get('List-'.$page);
+            Log::info('used-cache-for-getAll-list'.$page);
         }
-        return $postList;
+        return $listPost;
+
+
+
+//        $cachedPost = Cache::get("list:$page");
+//        if ($cachedPost) {
+//            return json_decode($cachedPost);
+//        } else {
+//            $posts = DB::table('posts')->select('id', 'title', 'user_id', 'study_time_in_min', 'created_at')->whereNull('deleted_at')->simplePaginate(15);
+//            $postArray = $posts->toArray();
+//            $postList = $postArray['data'];
+//            $postId=array_column($postList, 'id');
+//            Cache::tags('al')->add("list:$page", $postList, 3600);
+//            $x=Cache::get("list:$page");
+////            return json_decode($x, true);
+//            dd($x);
+////            return $postList;
+////            return (Cache::get("list:$page"));
+//        }
+
     }
 
     public function getById($id)
     {
-        $cachedPost=Redis::get("post:{$id}");
+        $cachedPost = Cache::tags(['posts','detail'])->get("post:{$id}");
         if ($cachedPost) {
-            $postDetails=json_decode($cachedPost);
-        }else {
-            $postDetails = Post::find($id);
-            Redis::setex("post:$id", 86400, json_encode($postDetails));
+            $postDetail = json_decode($cachedPost);
+            Log::info('used-cached-post-id'.$id);
+            return $postDetail;
+        } else {
+            $postDetail = Post::find($id);
+            Cache::tags(['posts','detail'])->add("post:$id", json_encode($postDetail));
+            return $postDetail;
         }
 //        $postDetails = Post::find($id);
-        return $postDetails;
     }
 
     public function create(Request $request)
@@ -45,14 +70,13 @@ class PostRepository
         $postData = array();
         $postData['user_id'] = $request->user_id;
         $postData['title'] = $request->title;
-        $postData['body'] =$request->body;
+        $postData['body'] = $request->body;
         $postData['study_time_in_min'] = $request->study_time_in_min;
         $postData['created_at'] = Carbon::now();
 
-//        $new_post=DB::table('posts')->insert($post_data);
-        $newPost=$request->user()->posts()->create($postData);
-        $id=$newPost->id;
-        Redis::setex("post:$id", 86400 , json_encode($newPost));
+        $newPost = $request->user()->posts()->create($postData);
+        $id = $newPost->id;
+        Cache::add("post:$id", json_encode($newPost));
         return $newPost;
     }
 
@@ -60,11 +84,8 @@ class PostRepository
     {
         $post = Post::find($id);
         Gate::authorize('modify', $post);
-        // $post_update=DB::table('posts')->where('id',$id)->update($request->all());
-        // $post_detail=Post::find($id);
         $postUpdate = Post::find($post->id);
         $postUpdate->update($request->all());
-        Redis::setex("post:$id", 86400 , json_encode($postUpdate));
         return $postUpdate;
     }
 
@@ -72,10 +93,7 @@ class PostRepository
     {
         $post = Post::find($id);
         Gate::authorize('modify', $post);
-        // $post_delete=DB::table('posts')->delete($id);
-        // $post_delete=DB::table('posts')->where('id',$id)->delete($id);
         $postDelete = Post::where('id', $post->id)->delete();
-        Redis::del("post:$id");
         return $postDelete;
     }
 }

@@ -3,10 +3,7 @@
 use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 
-//use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Http as HttpClient;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Redis;
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 
@@ -34,9 +31,12 @@ Route::post('logout', [AuthController::class, 'logout'])->name('logout')->middle
 use Illuminate\Support\Facades\Cache;
 
 Route::get('/cache-test', function () {
-//    $cachedPost = Redis::get("postList");
-    $id = 2;
-    $cachedPost = Redis::get("post:{$id}");
+    $page=1;
+//  Cache::tags('new')->put("List-:$page", 3200542);
+    $cachedPost=Cache::get("List-:$page");
+    $id = 7;
+
+//    $cachedPost =Cache::get("post:{$id}");
     return $cachedPost;
 });
 
