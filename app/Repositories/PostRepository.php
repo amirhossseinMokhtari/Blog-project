@@ -30,24 +30,6 @@ class PostRepository
         }
         return $listPost;
 
-
-
-//        $cachedPost = Cache::get("list:$page");
-//        if ($cachedPost) {
-//            return json_decode($cachedPost);
-//        } else {
-//            $posts = DB::table('posts')->select('id', 'title', 'user_id', 'study_time_in_min', 'created_at')->whereNull('deleted_at')->simplePaginate(15);
-//            $postArray = $posts->toArray();
-//            $postList = $postArray['data'];
-//            $postId=array_column($postList, 'id');
-//            Cache::tags('al')->add("list:$page", $postList, 3600);
-//            $x=Cache::get("list:$page");
-////            return json_decode($x, true);
-//            dd($x);
-////            return $postList;
-////            return (Cache::get("list:$page"));
-//        }
-
     }
 
     public function getById($id)
@@ -76,7 +58,7 @@ class PostRepository
 
         $newPost = $request->user()->posts()->create($postData);
         $id = $newPost->id;
-        Cache::add("post:$id", json_encode($newPost));
+        Cache::tags(['posts','detail'])->add("post:$id", json_encode($newPost));
         return $newPost;
     }
 
