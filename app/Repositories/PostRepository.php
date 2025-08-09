@@ -35,14 +35,14 @@ class PostRepository
 
     public function getById($id)
     {
-        $cachedPost = Cache::tags(['post', 'detail-post-id-' . $id])->get('post-id-' . $id);
+        $cachedPost = Cache::get('post-id-' . $id);
         if ($cachedPost) {
             $postDetail = json_decode($cachedPost);
             Log::info('used-cached-post-id-' . $id);
             return $postDetail;
         } else {
             $postDetail = Post::find($id);
-            Cache::tags(['post', 'detail-post-id-' . $id])->add('post-id-' . $id, json_encode($postDetail));
+            Cache::add('post-id-' . $id, json_encode($postDetail));
             return $postDetail;
         }
 //        $postDetails = Post::find($id);
@@ -59,7 +59,7 @@ class PostRepository
 
         $newPost = $request->user()->posts()->create($postData);
         $id = $newPost->id;
-        Cache::tags(['post', 'detail-post-id-' . $id])->add('post-id-' . $id, json_encode($newPost));
+        Cache::add('post-id-' . $id, json_encode($newPost));
         return $newPost;
     }
 
@@ -83,7 +83,7 @@ class PostRepository
     public function getByAllUserId($userId)
     {
 
-        $cachedPost = Cache::tags(['post', 'author-user-id-' . $userId])->get('posts-user-id-' . $userId);
+        $cachedPost = Cache::get('posts-user-id-' . $userId);
         if ($cachedPost) {
             $AuthorPosts = $cachedPost;
             Log::info('used-cache-for-getAll-user-id' . $userId);
@@ -91,7 +91,7 @@ class PostRepository
         } else {
             $AuthorPosts = DB::table('posts')->where('user_id', $userId)->select('id', 'title', 'user_id', 'study_time_in_min', 'created_at')
                 ->whereNull('deleted_at')->orderBy('id', 'desc')->cursorPaginate(15);
-            Cache::tags(['post', 'author-user-id-' . $userId])->add('posts-user-id-' . $userId, $AuthorPosts);
+            Cache::add('posts-user-id-' . $userId, $AuthorPosts);
             return $AuthorPosts;
         }
 
