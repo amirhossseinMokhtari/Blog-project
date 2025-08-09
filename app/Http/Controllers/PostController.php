@@ -4,14 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Enums\HttpStatusCodes;
 use App\Http\Requests\PostRequests\CreateRequestPost;
-use App\Http\Requests\PostRequests\GetAllRequestPost;
 use App\Http\Requests\PostRequests\UpdateRequestPost;
 use App\Http\Resources\PostResource;
-use App\Listeners\CreatePost;
+use App\Models\User;
 use App\Repositories\PostRepository;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 
@@ -23,11 +22,12 @@ class PostController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('auth:sanctum', except: ['index', 'show'])
+            new Middleware('auth:sanctum', except: ['getAll', 'getById','getByAllUserId'])
         ];
     }
 
     public PostRepository $postRepo;
+
     public function __construct(PostRepository $postRepo)
     {
         $this->postRepo = $postRepo;
@@ -40,7 +40,7 @@ class PostController extends Controller implements HasMiddleware
         $posts = $this->postRepo->getAll($page);
 
         if ($posts) {
-            $postResource =PostResource::collection($posts);
+            $postResource = PostResource::collection($posts);
             return response::json(['status' => ['message' => HttpStatusCodes::OK->message(), 'code' => HttpStatusCodes::OK->value], 'data' => $postResource]);
         } else {
             return Response::json(['status' => ['message' => HttpStatusCodes::NOT_FOUND->message(), 'code' => HttpStatusCodes::NOT_FOUND->value]]);
@@ -48,7 +48,7 @@ class PostController extends Controller implements HasMiddleware
     }
 
 
-    public function getById(Request $request,int $id)
+    public function getById(Request $request, int $id)
     {
         $postDetail = $this->postRepo->getById($id);
         if ($postDetail) {
@@ -93,12 +93,25 @@ class PostController extends Controller implements HasMiddleware
     /**
      * Remove the specified resource from storage.
      */
-    public function delete(int $id): \Illuminate\Http\JsonResponse
+    public function deleted(int $id): \Illuminate\Http\JsonResponse
     {
-        $postDelete = $this->postRepo->delete($id);
+        $postDelete = $this->postRepo->deleted($id);
         if ($postDelete) {
             return response::json(['status' => ['message' => HttpStatusCodes::OK->message(),
-            'code' => HttpStatusCodes::OK->value]]);
+                'code' => HttpStatusCodes::OK->value]]);
+        } else {
+            return Response::json(['status' => ['message' => HttpStatusCodes::NOT_FOUND->message(), 'code' => HttpStatusCodes::NOT_FOUND->value]]);
+        }
+    }
+
+    public function getByAllUserId(Request $request,int $userId)
+    {
+
+        $userPosts = $this->postRepo->getByAllUserId($userId);
+        if ($userPosts) {
+            $postResource = PostResource::collection($userPosts);
+            return response::json(['status' => ['message' => HttpStatusCodes::OK->message(),
+                'code' => HttpStatusCodes::OK->value], 'data' => $postResource]);
         } else {
             return Response::json(['status' => ['message' => HttpStatusCodes::NOT_FOUND->message(), 'code' => HttpStatusCodes::NOT_FOUND->value]]);
         }

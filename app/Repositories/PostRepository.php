@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Post;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -18,30 +19,30 @@ class PostRepository
      */
     public function getAll($page)
     {
-        if(Cache::tags(['posts','list'])->get('List-'.$page) == null){
-            $listPost =  Cache::tags(['posts','list'])->rememberForever('List-'.$page, function(){
+        if (Cache::tags(['posts', 'list'])->get('List-page-' . $page) == null) {
+            $listPosts = Cache::tags(['posts', 'list'])->rememberForever('List-page-' . $page, function () {
                 return DB::table('posts')->select('id', 'title', 'user_id', 'study_time_in_min', 'created_at')->whereNull('deleted_at')->orderBy('id', 'desc')->cursorPaginate(15);
             });
-            return $listPost;
+            return $listPosts;
         } else {
 
-            $listPost = Cache::tags(['posts','list'])->get('List-'.$page);
-            Log::info('used-cache-for-getAll-list'.$page);
+            $listPosts = Cache::tags(['posts', 'list'])->get('List-page-' . $page);
+            Log::info('used-cache-for-getAll-list' . $page);
+            return $listPosts;
         }
-        return $listPost;
 
     }
 
     public function getById($id)
     {
-        $cachedPost = Cache::tags(['posts','detail'])->get("post:{$id}");
+        $cachedPost = Cache::tags(['post', 'detail-post-id-' . $id])->get('post-id-' . $id);
         if ($cachedPost) {
             $postDetail = json_decode($cachedPost);
-            Log::info('used-cached-post-id'.$id);
+            Log::info('used-cached-post-id-' . $id);
             return $postDetail;
         } else {
             $postDetail = Post::find($id);
-            Cache::tags(['posts','detail'])->add("post:$id", json_encode($postDetail));
+            Cache::tags(['post', 'detail-post-id-' . $id])->add('post-id-' . $id, json_encode($postDetail));
             return $postDetail;
         }
 //        $postDetails = Post::find($id);
@@ -58,7 +59,7 @@ class PostRepository
 
         $newPost = $request->user()->posts()->create($postData);
         $id = $newPost->id;
-        Cache::tags(['posts','detail'])->add("post:$id", json_encode($newPost));
+        Cache::tags(['post', 'detail-post-id-' . $id])->add('post-id-' . $id, json_encode($newPost));
         return $newPost;
     }
 
@@ -71,11 +72,28 @@ class PostRepository
         return $postUpdate;
     }
 
-    public function delete($id)
+    public function deleted($id)
     {
         $post = Post::find($id);
         Gate::authorize('modify', $post);
-        $postDelete = Post::where('id', $post->id)->delete();
+        $postDelete = Post::where('id', $post->id)->first()->delete();
         return $postDelete;
+    }
+
+    public function getByAllUserId($userId)
+    {
+
+        $cachedPost = Cache::tags(['post', 'author-user-id-' . $userId])->get('posts-user-id-' . $userId);
+        if ($cachedPost) {
+            $AuthorPosts = $cachedPost;
+            Log::info('used-cache-for-getAll-user-id' . $userId);
+            return $AuthorPosts;
+        } else {
+            $AuthorPosts = DB::table('posts')->where('user_id', $userId)->select('id', 'title', 'user_id', 'study_time_in_min', 'created_at')
+                ->whereNull('deleted_at')->orderBy('id', 'desc')->cursorPaginate(15);
+            Cache::tags(['post', 'author-user-id-' . $userId])->add('posts-user-id-' . $userId, $AuthorPosts);
+            return $AuthorPosts;
+        }
+
     }
 }

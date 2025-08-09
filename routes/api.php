@@ -20,8 +20,8 @@ Route::prefix('posts')->group(function () {
     Route::get('/{id}/detail', [PostController::class, 'getById']);
     Route::post('create', [PostController::class, 'create']);
     Route::patch('{id}/update', [PostController::class, 'update']);
-    Route::delete('{id}/delete', [PostController::class, 'delete']);
-
+    Route::delete('{id}/delete', [PostController::class, 'deleted']);
+    Route::get('author/{userId}', [PostController::class, 'getByAllUserId']);
 })->middleware('auth');
 
 Route::post('register', [AuthController::class, 'register']);

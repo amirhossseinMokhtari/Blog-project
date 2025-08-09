@@ -22,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
         $this->app->bind(PostRepository::class);
         Post::observe(PostObserber::class);
     }
