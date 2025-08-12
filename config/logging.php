@@ -4,12 +4,12 @@ use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
 use Monolog\Processor\PsrLogMessageProcessor;
-//use TheCoder\MonologTelegram\Attributes\EmergencyAttribute;
-//use TheCoder\MonologTelegram\Attributes\CriticalAttribute;
-//use TheCoder\MonologTelegram\Attributes\ImportantAttribute;
-//use TheCoder\MonologTelegram\Attributes\DebugAttribute;
-//use TheCoder\MonologTelegram\Attributes\InformationAttribute;
-//use TheCoder\MonologTelegram\Attributes\LowPriorityAttribute;
+use TheCoder\MonologTelegram\Attributes\EmergencyAttribute;
+use TheCoder\MonologTelegram\Attributes\CriticalAttribute;
+use TheCoder\MonologTelegram\Attributes\ImportantAttribute;
+use TheCoder\MonologTelegram\Attributes\DebugAttribute;
+use TheCoder\MonologTelegram\Attributes\InformationAttribute;
+use TheCoder\MonologTelegram\Attributes\LowPriorityAttribute;
 
 return [
 
@@ -55,87 +55,56 @@ return [
     |                    "errorlog", "monolog", "custom", "stack"
     |
     */
-
+//        'stack' => [
+//            'driver' => 'stack',
+//            'channels' => explode(',', (string) env('LOG_STACK', 'single')),
+//            'ignore_exceptions' => false,
+//        ],
     'channels' => [
+
 
         'stack' => [
             'driver' => 'stack',
-            'channels' => explode(',', (string) env('LOG_STACK', 'single')),
+            'channels' => explode(',', (string)env('LOG_STACK', 'single')),
             'ignore_exceptions' => false,
         ],
 
 
+        'telegram' => [
+            'driver' => 'monolog',
+            'level' => env('LOG_LEVEL', 'debug'),
+            'replace_placeholders' => true,
+            'handler' => TheCoder\MonologTelegram\TelegramBotHandler::class,
+            'handler_with' => [
+                'token' => env('LOG_TELEGRAM_BOT_TOKEN'),
+                'chat_id' => env('LOG_TELEGRAM_CHAT_ID'),
+                'topic_id' => env('LOG_TELEGRAM_TOPIC_ID', null),
+                'bot_api' => env('LOG_TELEGRAM_BOT_API', 'https://api.telegram.org/bot'),
+                'proxy' => env('LOG_TELEGRAM_BOT_PROXY', null),
+                'queue' => env('LOG_TELEGRAM_QUEUE', null),
+                'timeout' => env('LOG_TELEGRAM_TIMEOUT', 5),
+                'topics_level' => [
+                    EmergencyAttribute::class => env('LOG_TELEGRAM_EMERGENCY_ATTRIBUTE_TOPIC_ID', null),
+                    CriticalAttribute::class => env('LOG_TELEGRAM_CRITICAL_ATTRIBUTE_TOPIC_ID', null),
+                    ImportantAttribute::class => env('LOG_TELEGRAM_IMPORTANT_ATTRIBUTE_TOPIC_ID', null),
+                    DebugAttribute::class => env('LOG_TELEGRAM_DEBUG_ATTRIBUTE_TOPIC_ID', null),
+                    InformationAttribute::class => env('LOG_TELEGRAM_INFORMATION_ATTRIBUTE_TOPIC_ID', null),
+                    LowPriorityAttribute::class => env('LOG_TELEGRAM_LOWPRIORITY_ATTRIBUTE_TOPIC_ID', null),
+                ]
+            ],
+            'formatter' => TheCoder\MonologTelegram\TelegramFormatter::class,
+            'formatter_with' => [
+                'tags' => env('LOG_TELEGRAM_TAGS', null),
+            ],
+        ],
 
 
-    'single' => [
+        'single' => [
             'driver' => 'single',
             'path' => storage_path('logs/laravel.log'),
             'level' => env('LOG_LEVEL', 'debug'),
             'replace_placeholders' => true,
         ],
 
-        'daily' => [
-            'driver' => 'daily',
-            'path' => storage_path('logs/laravel.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
-            'days' => env('LOG_DAILY_DAYS', 14),
-            'replace_placeholders' => true,
-        ],
-
-        'slack' => [
-            'driver' => 'slack',
-            'url' => env('LOG_SLACK_WEBHOOK_URL'),
-            'username' => env('LOG_SLACK_USERNAME', 'Laravel Log'),
-            'emoji' => env('LOG_SLACK_EMOJI', ':boom:'),
-            'level' => env('LOG_LEVEL', 'critical'),
-            'replace_placeholders' => true,
-        ],
-
-        'papertrail' => [
-            'driver' => 'monolog',
-            'level' => env('LOG_LEVEL', 'debug'),
-            'handler' => env('LOG_PAPERTRAIL_HANDLER', SyslogUdpHandler::class),
-            'handler_with' => [
-                'host' => env('PAPERTRAIL_URL'),
-                'port' => env('PAPERTRAIL_PORT'),
-                'connectionString' => 'tls://'.env('PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT'),
-            ],
-            'processors' => [PsrLogMessageProcessor::class],
-        ],
-
-        'stderr' => [
-            'driver' => 'monolog',
-            'level' => env('LOG_LEVEL', 'debug'),
-            'handler' => StreamHandler::class,
-            'handler_with' => [
-                'stream' => 'php://stderr',
-            ],
-            'formatter' => env('LOG_STDERR_FORMATTER'),
-            'processors' => [PsrLogMessageProcessor::class],
-        ],
-
-        'syslog' => [
-            'driver' => 'syslog',
-            'level' => env('LOG_LEVEL', 'debug'),
-            'facility' => env('LOG_SYSLOG_FACILITY', LOG_USER),
-            'replace_placeholders' => true,
-        ],
-
-        'errorlog' => [
-            'driver' => 'errorlog',
-            'level' => env('LOG_LEVEL', 'debug'),
-            'replace_placeholders' => true,
-        ],
-
-        'null' => [
-            'driver' => 'monolog',
-            'handler' => NullHandler::class,
-        ],
-
-        'emergency' => [
-            'path' => storage_path('logs/laravel.log'),
-        ],
-
-    ],
-
+    ]
 ];

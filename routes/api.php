@@ -1,18 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use Illuminate\Http\Request;
-
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 
-//Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//    return $request->user();
-//});
-
-// Route::Resource('post','App\Http\Controllers\PostController');
-// Route::Resource('add-user','App\Http\Controllers\UserController');
 
 
 Route::prefix('posts')->group(function () {
@@ -32,21 +23,14 @@ use Illuminate\Support\Facades\Cache;
 
 Route::get('/cache-test', function () {
     $page=1;
-//  Cache::tags('new')->put("List-:$page", 3200542);
     $cachedPost=Cache::get("List-:$page");
     $id = 7;
-
 //    $cachedPost =Cache::get("post:{$id}");
     return $cachedPost;
 });
 
-//Route::get('/log-test', function () {
-//    Log::channel('telegram')->info('ERROR IN TELEGRAM');
-//return 'ERROR SEND TELEGRAM';
-//});
+Route::get('Singleton', [\App\Http\Controllers\SingletonLoggerController::class, 'logTest']);
 
-
-//Route::get('/telegram-bot',[\App\Http\Controllers\TelegramController::class,'getTelegramBot']);
 
 
 

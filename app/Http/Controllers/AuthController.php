@@ -7,9 +7,7 @@ use App\Http\Requests\UserRequests\LoginRequestUser;
 use App\Http\Requests\UserRequests\RegisterRequestUser;
 use App\Http\Resources\UserResource;
 use App\Repositories\UserRepository;
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 
 class AuthController extends Controller

@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\HttpStatusCodes;
+use App\Events\PostCreated;
 use App\Http\Requests\PostRequests\CreateRequestPost;
 use App\Http\Requests\PostRequests\UpdateRequestPost;
 use App\Http\Resources\PostResource;
-use App\Models\User;
 use App\Repositories\PostRepository;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Response;
 
@@ -22,7 +21,7 @@ class PostController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('auth:sanctum', except: ['getAll', 'getById','getByAllUserId'])
+            new Middleware('auth:sanctum', except: ['getAll', 'getById', 'getByAllUserId'])
         ];
     }
 
@@ -66,7 +65,7 @@ class PostController extends Controller implements HasMiddleware
     {
         $request->validated();
         $newPost = $this->postRepo->create($request);
-//        event(new CreatePost($newPost));
+        event(new PostCreated($newPost));
         if ($newPost) {
             $postResource = new PostResource($newPost);
             return response::json(['status' => ['message' => HttpStatusCodes::CREATED->message(),
@@ -104,7 +103,7 @@ class PostController extends Controller implements HasMiddleware
         }
     }
 
-    public function getByAllUserId(Request $request,int $userId)
+    public function getByAllUserId(Request $request, int $userId)
     {
 
         $userPosts = $this->postRepo->getByAllUserId($userId);
