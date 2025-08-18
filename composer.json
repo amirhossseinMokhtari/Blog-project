@@ -10,12 +10,15 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ext-curl": "*",
         "ext-redis": "*",
+        "guzzlehttp/guzzle": "^7.9",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.2",
         "laravel/tinker": "^2.10.1",
-        "thecoder/laravel-monolog-telegram": "^2.5",
-        "voku/simple_html_dom": "^4.8"
+        "morilog/jalali": "3.*",
+        "symfony/dom-crawler": "^7.3",
+        "thecoder/laravel-monolog-telegram": "^2.5"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

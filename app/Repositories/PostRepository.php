@@ -56,7 +56,6 @@ class PostRepository
         $postData['body'] = $request->body;
         $postData['study_time_in_min'] = $request->study_time_in_min;
         $postData['created_at'] = Carbon::now();
-
         $newPost = $request->user()->posts()->create($postData);
         $id = $newPost->id;
         Cache::add('post-id-' . $id, json_encode($newPost));

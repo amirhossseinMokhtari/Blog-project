@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('study_time_in_min');
             $table->boolean('is_draft')->default(0);
             $table->foreignId('deleted_by')->nullable();
-            $table->timestamps(precision: 0);
+            $table->timestamps();
             $table->timestamp('approved_at')->nullable();
             $table->timestamp('published_at')->nullable();
              $table->softDeletes();

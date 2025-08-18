@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 
 class test extends Command
 {
@@ -26,8 +25,8 @@ class test extends Command
      */
     public function handle()
     {
-        $x="hduhuhauwh";
-        $r="knjk";
-        Log::info($x);
+
     }
+
+
 }

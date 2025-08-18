@@ -18,18 +18,15 @@ Route::prefix('posts')->group(function () {
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login'])->name('login.post');
 Route::post('logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth:sanctum');
+Route::get('news/fa/search',[\App\Http\Controllers\NewsScraperController::class, 'scrapeNews']);
 
-use Illuminate\Support\Facades\Cache;
 
-Route::get('/cache-test', function () {
-    $page=1;
-    $cachedPost=Cache::get("List-:$page");
-    $id = 7;
-//    $cachedPost =Cache::get("post:{$id}");
-    return $cachedPost;
-});
+
+
+
 
 Route::get('Singleton', [\App\Http\Controllers\SingletonLoggerController::class, 'logTest']);
+
 
 
 
