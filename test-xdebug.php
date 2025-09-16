@@ -16,10 +16,9 @@ function numFaTEn($string): string
 
 //public function persianStringToDate($dateString)
 
-$dateString = '۲۶ مرداد ۱۴۰۴ - ۱۰:۳۰';
-
-
-$monthsArrayString = array('فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند');
+$dateString = "۱۱ شهريور ۱۴۰۴ - ۱۴:۴۸";
+$monthsArrayString = array("فروردین","اردیبهشت","خرداد","تیر","مرداد","شهريور","مهر","آبان","آذر","دی","بهمن","اسفند");
+//$monthsArrayString = array('فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند');
 $dataArrayString = explode(' ', $dateString);
 
 $solarYear = numFaTEn($dataArrayString[2]);

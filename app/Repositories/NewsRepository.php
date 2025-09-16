@@ -2,18 +2,20 @@
 
 namespace App\Repositories;
 
+use App\Models\Category;
 use App\Models\News;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class NewsRepository
 {
     protected $newsModel;
+    protected $categoryModel;
 
-    public function __construct(News $newsModel)
+    public function __construct(News $newsModel,Category $categoryModel)
     {
         $this->newsModel = $newsModel;
+        $this->categoryModel = $categoryModel;
     }
 
     public function all()
@@ -37,7 +39,7 @@ class NewsRepository
             'body' => $request['body'],
             'image_url' => $request['image_url'],
             'url' => $request['news_url'],
-            'date' => $request['date'],
+            'published_at' => $request['published_at'],
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
         ];
@@ -48,6 +50,17 @@ class NewsRepository
     public function isUrlUnique($url)
     {
         return $this->newsModel->where('url', $url)->doesntExist();
+    }
+
+    public function isCategoryUnique($name)
+    {
+        $tag = $this->categoryModel->where('name', $name)->get();
+        if(count($tag)===0){
+            return false;
+        }else{
+            $lastPost=$tag[0]->news->max('published_at');
+            return $lastPost;
+        }
     }
 
 }

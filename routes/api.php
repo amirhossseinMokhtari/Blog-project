@@ -19,6 +19,8 @@ Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login'])->name('login.post');
 Route::post('logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth:sanctum');
 Route::get('news/fa/search',[\App\Http\Controllers\NewsScraperController::class, 'scrapeNews']);
+Route::get('test',[\App\Http\Controllers\TestController::class, 'isCategoryUnique']);
+
 
 
 

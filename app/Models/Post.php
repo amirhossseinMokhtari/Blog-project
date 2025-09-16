@@ -8,18 +8,24 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Post extends Model
 {
-    protected $guarded=[];
+    protected $guarded = [];
     use HasFactory;
     use SoftDeletes;
 
-/**
-    * Get the user that owns the Post
-    *
-    *  \Illuminate\Database\Eloquent\Relations\BelongsTo
-    */
-   public function user()
-   {
-       return $this->belongsTo(User::class);
-   }
+    /**
+     * Get the user that owns the Post
+     *
+     *  \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
 // 'foreign_key', 'other_key'
+    public function categories()
+    {
+        return $this->morphToMany(Category::class, 'categorizable');
+    }
+
 }
